@@ -1,5 +1,6 @@
 package ex2
 
+import ex2.Robot
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

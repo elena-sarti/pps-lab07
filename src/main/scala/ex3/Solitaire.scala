@@ -3,8 +3,10 @@ package ex3
 object Solitaire extends App:
   type Position = (Int, Int)
   def Position(i: Int, i1: Int): Position = (i, i1)
+
   type Solution = List[Position]
   def Solution(p: Position): Solution = List.apply(p)
+
   type IterableFactory = Solution => Iterable[Solution]
 
   given IterableFactory = List(_)
@@ -20,23 +22,21 @@ object Solitaire extends App:
       yield row.mkString
     rows.mkString("\n")
 
-  def placeMarks(board: Board)(using factory: IterableFactory): Iterable[Solution] = (board.width, board.height) match
-    case (0, 0) => factory(List())
-    case (w, h) =>
-      val initialMark = Position(w / 2, h / 2)
-      def _placeMarks(marks: Solution): Iterable[Solution] =
-        if marks.size == w * h then factory(marks) else
-          for
-            x <- 0 until w
-            y <- 0 until h
-            mark = Position(x, y)
-            startingMark = marks.head
-            if isValid(mark, startingMark)
-            if !marks.contains(mark)
-            solution <- _placeMarks(mark +: marks)
-          yield
-            solution
-      _placeMarks(Solution(initialMark))
+  def placeMarks(board: Board)(using factory: IterableFactory): Iterable[Solution] =
+    val initialMark = Position(board.width / 2, board.height / 2)
+    def _placeMarks(marks: Solution): Iterable[Solution] =
+      if marks.size == board.width * board.height then factory(marks) else
+        for
+          x <- 0 until board.width
+          y <- 0 until board.height
+          mark = Position(x, y)
+          startingMark = marks.head
+          if isValid(mark, startingMark)
+          if !marks.contains(mark)
+          solution <- _placeMarks(mark +: marks)
+        yield
+          solution
+    _placeMarks(Solution(initialMark))
 
   private def isValid(position: Position, initialPosition: Position): Boolean =
     val x = position._1; val y = position._2; val initialX = initialPosition._1; val initialY = initialPosition._2
